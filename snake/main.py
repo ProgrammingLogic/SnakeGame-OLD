@@ -8,17 +8,16 @@ class SnakeBody(pygame.Rect):
     A body part of the snake.
     """
 
-    def __init__(self, snake, previous_part, direction, x, y, speed, screen, *args, **kargs):
+    def __init__(self, snake, turn_history, direction, x, y, speed, screen, indice, *args, **kargs):
         super(SnakeBody, self).__init__(x, y, 30, 30)
         self.snake = snake
-        self.previous_part = previous_part
         self.directions = ['north', 'south', 'east', 'west']
         self.direction = direction
-        self.direction_queue = [] # [{previous_part_x : x, previous_part_y : y,  direction : direction}]
         self.speed = speed
         self.screen = screen
         self.screen_size = self.screen.get_size()
-        self.next_part = None
+        self.turn_history = []
+        self.indice = indice
    
 
     def update(self):
@@ -33,13 +32,18 @@ class SnakeBody(pygame.Rect):
         """
         Updates the direction of the SnakeBody.
         """
-        if len(self.direction_queue) is not 0:
-            recent_change = self.direction_queue[0]
-            
-            if self.top == recent_change['y'] and self.left == recent_change['x']:
-                self.direction_queue.pop(0)
-                self.change_direction(recent_change['direction'], override = True)
-        
+        if len(self.turn_history) > 0:
+            for num, turn in enumerate(self.turn_history):
+                if not turn['turned']:
+                    if self.indice > 1:
+                        print(turn['turned'])
+                    if self.snake.size - 1 == self.indice and self.indice > 1:
+                        print('left: ' + str(self.left) + ' x: ' + str(turn['x']) + ' top: ' + str(self.top) + ' y: ' + str(turn['y']))
+
+                    if self.left == turn['x'] and self.top == turn['y']:
+                        self.change_direction(turn['direction'])
+                        self.turn_history[num]['turned'] = True
+
 
     def draw(self, background):
         """
@@ -84,34 +88,15 @@ class SnakeBody(pygame.Rect):
         """
         self.top = y
         self.left = x
-    
-    def update_next_part(self, part):
-        """
-        Updates the next BodyPart of this BodyPart.
 
-        :param part: The next BodyPart in the list.
-        """
-        self.next_part = part
-    
-
-    def change_direction(self, direction, override = False):
+    def change_direction(self, direction):
         """
         Changes the direction of the SnakeBody.
         """
         direction = direction.lower()
         
         if direction in self.directions:
-            if not override:
-                if self.previous_part is not None:
-                    x = self.previous_part.left
-                    y = self.previous_part.top
-                    self.direction_queue.append({'x': x, 'y': y, 'direction': direction})
-                else:
-                    self.direction = direction
-                if self.next_part is not None:
-                    self.next_part.change_direction(direction)
-            else:
-                self.direction = direction
+            self.direction = direction
         else:
             raise Exception('Invalid direction.')
     
@@ -154,7 +139,8 @@ class Snake(Sprite):
         self.speed = 3
         self.directions = ['north', 'south', 'east', 'west']
         self.direction = 'south'
-        self.body_parts = [SnakeBody(self, None, self.direction, self.position[0], self.position[1], self.speed, self.screen)]
+        self.turns = []
+        self.body_parts = [SnakeBody(self, self.turns, self.direction, self.position[0], self.position[1], self.speed, self.screen, 0)]
 
     def draw(self, background):
         """
@@ -172,13 +158,24 @@ class Snake(Sprite):
         for part in self.body_parts:
             part.update()
 
-        if len(self.body_parts) >= 3:
-            print(self.body_parts[2].direction)
 
     def change_direction(self, direction):
         if direction.lower() in self.directions:
             self.direction = direction.lower()
-            self.body_parts[0].change_direction(direction)
+
+            x = self.body_parts[0].left
+            y = self.body_parts[0].top
+
+            turn = {'x': x, 'y': y, 'direction': direction, 'size': self.size, 'turned': False} 
+
+            self.turns.append(turn)
+
+            for num, part in enumerate(self.body_parts):
+                if num == 0:
+                    part.change_direction(turn['direction'])
+                
+                elif num == 1 or num is not (len(self.body_parts) - 1):
+                    part.turn_history.append(turn)
         else:
             raise Exception('Invalid direction.')
     
@@ -211,6 +208,7 @@ class Snake(Sprite):
         self.size += 1
         self.add_body_part()
         self.game.add_coin()
+        print(self.size)
 
     def add_body_part(self):
         previous_part = self.body_parts[-1]
@@ -233,8 +231,7 @@ class Snake(Sprite):
 
         # print(x, y)
         # print(previous_part.left, previous_part.top)
-        self.body_parts.append(SnakeBody(self, previous_part, direction , x, y, self.speed, self.screen))
-        self.body_parts[-2].update_next_part(self.body_parts[-1])
+        self.body_parts.append(SnakeBody(self, self.turns, direction , x, y, self.speed, self.screen, len(self.body_parts)))
     
 
 class Game:
