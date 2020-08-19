@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from logging import Logger
 
 class Sprite:
     """
@@ -59,6 +60,7 @@ class Sprite:
         self.position = position
         self.update_pos_vars()
         self.sprite_type = sprite_type
+        self.logger = Logger(__name__)
 
 
     def update(self):
