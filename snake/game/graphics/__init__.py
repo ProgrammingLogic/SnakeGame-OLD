@@ -1,2 +1,2 @@
-from . import Sprite
-from . import Scene
+from .Sprite import Sprite
+from .Scene import Scene
