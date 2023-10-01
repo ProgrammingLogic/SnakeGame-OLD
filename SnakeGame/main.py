@@ -21,29 +21,43 @@ def parse_arguments():
             "error",
             "critical",
         ],
-        default="info",
+        default="debug",
     )
     
     return parser.parse_args()
 
 
-def setup_logger():
-    base_log_level = logging.DEBUG
+def setup_logger(args):
+    # If a log level isn't defined, we just want to use info.
+    log_level = logging.INFO
+
+    # Set the log level.
+    match args.log_level:
+        case "debug":
+            log_level = logging.DEBUG
+        case "info":
+            log_level = logging.INFO
+        case "warning":
+            log_level = logging.WARNING
+        case "error":
+            log_level = logging.ERROR
+        case "critical":
+            log_level = logging.CRITICAL
+
+
     logger = logging.getLogger(__name__)
-    logger.setLevel(base_log_level)
+    logger.setLevel(log_level)
     log_file = "./snake.log"
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    file_log_level = base_log_level
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(file_log_level)
+    file_handler.setLevel(log_level)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    console_log_level = base_log_level
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_log_level)
+    console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
@@ -53,8 +67,9 @@ def setup_logger():
 def main():
     # Logic to start the game
     args = parse_arguments()
-    setup_logger()
+    setup_logger(args)
     logger = logging.getLogger(__name__)
+
 
     running = True
     iterations = 0
