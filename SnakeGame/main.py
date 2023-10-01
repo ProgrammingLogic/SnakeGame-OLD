@@ -62,14 +62,13 @@ def setup_logger(args):
     logger.addHandler(console_handler)
 
     logger.debug("Logger has been initialized")
+    return logger
 
 
 def main():
     # Logic to start the game
     args = parse_arguments()
-    setup_logger(args)
-    logger = logging.getLogger(__name__)
-
+    logger = setup_logger(args)
 
     running = True
     iterations = 0
