@@ -1,4 +1,30 @@
 import logging
+import argparse
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Play a game called Snake."
+    )
+
+    
+    # Log level
+    parser.add_argument(
+        "-v", "--log_level", 
+        required=False,
+        action="store",
+        help="The level of output the application provides.",
+        choices=[
+            "debug",
+            "info",
+            "warning",
+            "error",
+            "critical",
+        ],
+        default="info",
+    )
+    
+    return parser.parse_args()
 
 
 def setup_logger():
@@ -26,6 +52,7 @@ def setup_logger():
 
 def main():
     # Logic to start the game
+    args = parse_arguments()
     setup_logger()
     logger = logging.getLogger(__name__)
 
