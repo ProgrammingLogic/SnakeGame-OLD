@@ -24,6 +24,39 @@ def parse_arguments():
         ],
         default="debug",
     )
+
+
+    # Log file location
+    parser.add_argument(
+        "-o", "--log_file", 
+        required=False,
+        action="store",
+        help="Where to store the game's debug messages.",
+        default="SnakeGame.log",
+    )
+
+
+    # Output to file
+    #   TODO: In release 1.0, set the default value to "False", 
+    #       and set action to "store_true".
+    parser.add_argument(
+        "--output_to_file", 
+        required=False,
+        action="store_false",
+        help="Whether or not to output the game's debug messages to a log file.",
+        default=True,
+    )
+
+
+    # Output to stdout.
+    parser.add_argument(
+        "-s", "--no_stdout", "--no_output", 
+        required=False,
+        action="store_true",
+        help="Whether or not to output the game's debug messages to stdout.",
+        default=False,
+    )
+
     
     return parser.parse_args()
 
@@ -47,24 +80,26 @@ def setup_logger(args):
 
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
-    log_file = "./snake.log"
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    if (args.output_to_file):
+        file_handler = logging.FileHandler(args.log_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    
+    if (not args.no_stdout):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
 
     logger.debug("Logger has been initialized")
     return logger
-
-
 
 
 def main():
