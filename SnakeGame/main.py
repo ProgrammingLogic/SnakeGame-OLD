@@ -32,7 +32,6 @@ def setup_logger(args):
     # If a log level isn't defined, we just want to use info.
     log_level = logging.INFO
 
-    # Set the log level.
     match args.log_level:
         case "debug":
             log_level = logging.DEBUG
