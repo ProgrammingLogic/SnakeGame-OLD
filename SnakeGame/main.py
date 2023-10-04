@@ -1,17 +1,6 @@
 import logging
 import argparse
-
-
-class Snake:
-    location = {
-        'x': 100,
-        'y': 100,
-    }
-        
-    def __init__(self):
-        pass
-
-
+from .Snake import Snake
 
 
 def parse_arguments():
