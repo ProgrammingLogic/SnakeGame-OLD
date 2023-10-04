@@ -1,34 +1,6 @@
 import logging
 import argparse
-from .Snake import Snake
-
-
-class Game:
-    running = True
-    iterations = 0
-    max_iterations = 10
-    snake = None
-
-
-    def __init__(self, *args, **kwargs):
-        self.logger = logging.getLogger(__name__)
-        self.snake = Snake()
-
-
-    def loop(self):
-        while self.running:
-            self.logger.debug(f"""Starting iteration {self.iterations}""")
-
-            self.snake.location['x'] += 5
-            self.snake.location['y'] += 5
-            
-            self.logger.info(f"""Snake Location: [{self.snake.location["x"]}, {self.snake.location["y"]}]""")
-            self.iterations += 1
-
-
-            # Determine if we should stop the game
-            if (self.iterations > self.max_iterations):
-                self.running = False
+from .Game import Game
 
 
 def parse_arguments():
@@ -102,7 +74,7 @@ def main():
     logger.info("Starting game")
 
 
-    game = Game()
+    game = Game(logger=logger)
     game.loop()
 
 
